@@ -1,48 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import "./App.css";
+import { ToastProvider } from "./components/ToastProvider";
+import { NotesListPage } from "./pages/NotesListPage";
+import { CreateNotePage } from "./pages/CreateNotePage";
+import { EditNotePage } from "./pages/EditNotePage";
+import { getResolvedApiBase } from "./api/client";
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
-
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+  /** Application entry component: layout shell + routes for notes list/create/edit. */
+  const apiBase = getResolvedApiBase();
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ToastProvider>
+      <div className="app-shell">
+        <header className="app-header">
+          <div className="container header-inner">
+            <div className="brand">
+              <div className="brand-mark" aria-hidden="true">
+                N
+              </div>
+              <div className="brand-text">
+                <div className="brand-title">Notes</div>
+                <div className="brand-subtitle">Simple notes app</div>
+              </div>
+            </div>
+
+            <div className="header-meta">
+              <span className="badge" title={`API base resolved from env vars (REACT_APP_API_BASE preferred).`}>
+                API: {apiBase}
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <main className="app-main">
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<NotesListPage />} />
+              <Route path="/new" element={<CreateNotePage />} />
+              <Route path="/notes/:id" element={<EditNotePage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </main>
+
+        <footer className="app-footer">
+          <div className="container footer-inner">
+            <span className="muted">Built with React • CRUD via REST API</span>
+          </div>
+        </footer>
+      </div>
+    </ToastProvider>
   );
 }
 
